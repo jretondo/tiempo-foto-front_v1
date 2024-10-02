@@ -16,10 +16,10 @@
 
 */
 /*eslint-disable*/
-import React from "react";
+import React from 'react';
 
 // reactstrap components
-import { NavItem, NavLink, Nav, Container, Row, Col } from "reactstrap";
+import { NavItem, NavLink, Nav, Container, Row, Col } from 'reactstrap';
 
 class Login extends React.Component {
   render() {
@@ -28,20 +28,20 @@ class Login extends React.Component {
         <footer className="py-5">
           <Container>
             <Row className="align-items-center justify-content-xl-between">
-              <Col xl="12" style={{ textAlign: "center" }}>
+              <Col xl="12" style={{ textAlign: 'center' }}>
                 <div className="copyright text-center  text-muted">
-                  © 2022{" Club de la Limpieza - Un producto de "}
+                  © {new Date().getFullYear()}
+                  {' Tiempo Fotográfico - Un producto de '}
                   <a
                     className="font-weight-bold ml-1"
                     href="https://nekonet.com.ar"
                     target="_blank"
-                    style={{ color: "rgb(242, 197, 27)" }}
+                    style={{ color: 'rgb(242, 197, 27)' }}
                   >
                     NekoNET
                   </a>
                 </div>
               </Col>
-
             </Row>
           </Container>
         </footer>

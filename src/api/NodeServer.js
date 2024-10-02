@@ -8,12 +8,12 @@ if (process.env.NODE_ENV === 'development') {
     host = 'http://localhost:3014/api';
     publicFiles = 'http://localhost:3014/static';
   } else {
-    host = 'https://api-test.nekoadmin.com.ar/club-limpieza/api';
-    publicFiles = 'https://api-test.nekoadmin.com.ar/club-limpieza/static';
+    host = 'https://api-test.nekoadmin.com.ar/tiempo-foto/api';
+    publicFiles = 'https://api-test.nekoadmin.com.ar/tiempo-foto/static';
   }
 } else {
-  host = 'https://api-prod.nekoadmin.com.ar/club-limpieza/api';
-  publicFiles = 'https://api-prod.nekoadmin.com.ar/club-limpieza/static';
+  host = 'https://api-prod.nekoadmin.com.ar/tiempo-foto/api';
+  publicFiles = 'https://api-prod.nekoadmin.com.ar/tiempo-foto/static';
 }
 
 const prodImages = publicFiles + '/images/products/';

@@ -45,6 +45,8 @@ const VentasModule = () => {
     setModuleActive(3);
   };
 
+  const pv = localStorage.getItem('pv');
+  console.log('pv :>> ', pv);
   const getDummy = async () => {
     setAfipStatus({
       latencia: 0,
@@ -136,11 +138,13 @@ const VentasModule = () => {
                     tittle={'Listar Caja'}
                     active={moduleActive === 2 ? true : false}
                   />
-                  <ButtonOpenCollapse
-                    action={activeCajaListaDetalles}
-                    tittle={'Detalles de Caja'}
-                    active={moduleActive === 3 ? true : false}
-                  />
+                  {pv === 'null' && (
+                    <ButtonOpenCollapse
+                      action={activeCajaListaDetalles}
+                      tittle={'Listar Detalles de Caja'}
+                      active={moduleActive === 3 ? true : false}
+                    />
+                  )}
                   <ButtonOpenCollapse
                     action={activeConsultas}
                     tittle={'Consulta de Ventas'}
