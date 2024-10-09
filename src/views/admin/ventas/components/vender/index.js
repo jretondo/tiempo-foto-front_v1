@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import UrlNodeServer from '../../../../../api/NodeServer';
 import {
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Col,
@@ -31,6 +32,9 @@ import FileSaver from 'file-saver';
 import { verificadorCuit } from 'Function/VerificadorCuit';
 import ModalChange from './modalChange';
 import FormasPagoMod from './formasPago';
+import ButtonOpenCollapse from '../../../../../components/buttonOpen';
+import { useWindowSize } from '../../../../../Hooks/UseWindowSize';
+import ReactQuill from 'react-quill';
 
 const Ventas = ({ setValidPV }) => {
   const [clienteBool, setClienteBool] = useState(0);
@@ -57,8 +61,13 @@ const Ventas = ({ setValidPV }) => {
   const [modalCodDescuento, setModalDescuento] = useState(false);
   const [tiempoLimite, setTiempoLimite] = useState(300);
   const [data, setData] = useState({});
+  const [recargo, setRecargo] = useState(0);
+  const [productSell, setProductSell] = useState(true);
+  const [detCustom, setDetCustom] = useState('');
+  const [totalCustom, setTotalCustom] = useState(0);
   const { totalPrecio, cancelarCompra, productsSellList } =
     useContext(productsSellContext);
+  const width = useWindowSize();
 
   const cancelar = () => {
     swal({
@@ -77,10 +86,10 @@ const Ventas = ({ setValidPV }) => {
   };
 
   const generarFactura = async () => {
-    if (descuentoPerc > 100) {
+    if (descuentoPerc > 30 || descuentoPerc < 0) {
       swal(
         'Error: Descuento erroneo!',
-        'Controle el descuento, no puede ser mayor a 100',
+        'Controle el descuento, no puede ser mayor al 30% y tampoco menor al 0%.',
         'error',
       );
     } else {
@@ -99,8 +108,12 @@ const Ventas = ({ setValidPV }) => {
             descuentoPerc: descuentoPerc,
             variosPagos: variosPagos,
             t_fact: parseInt(tfact),
+            recargo: recargo,
           },
           fiscal: factFiscBool,
+          productSell: productSell,
+          detCustom: detCustom,
+          totalCustom: totalCustom,
         };
       } else {
         data = {
@@ -120,55 +133,108 @@ const Ventas = ({ setValidPV }) => {
             descuentoPerc: descuentoPerc,
             variosPagos: variosPagos,
             t_fact: parseInt(tfact),
+            recargo: recargo,
           },
           fiscal: factFiscBool,
+          productSell: productSell,
+          detCustom: detCustom,
+          totalCustom: totalCustom,
         };
       }
-      if (
-        parseInt(formaPago) === 5 &&
-        parseFloat(total) !==
-          parseFloat(totalPrecio - totalPrecio * (descuentoPerc / 100))
-      ) {
-        swal(
-          'Error: Total del pago!',
-          'Revise que el total del pago debe ser igual al total de la factura.',
-          'error',
-        );
-      } else {
-        if (productsSellList.length > 0) {
-          if (parseInt(clienteBool) === 1) {
-            if (parseInt(tipoDoc) === 96) {
-              const largo = ndoc.length;
-              if (largo > 8 || largo < 7) {
-                swal(
-                  'Error en el DNI!',
-                  'El DNI que trata de cargar es inválido! Reviselo.',
-                  'error',
-                );
-              } else {
-                facturar(data);
-              }
-            } else {
-              const esCuit = verificadorCuit(ndoc).isCuit;
-              if (esCuit) {
-                facturar(data);
-              } else {
-                swal(
-                  'Error en el CUIT!',
-                  'El CUIT que trata de cargar es inválido! Reviselo.',
-                  'error',
-                );
-              }
-            }
-          } else {
-            facturar(data);
-          }
-        } else {
+      if (productSell) {
+        if (
+          parseInt(formaPago) === 5 &&
+          parseFloat(total) !==
+            parseFloat(totalPrecio - totalPrecio * (descuentoPerc / 100))
+        ) {
           swal(
-            'Error en el carrito!',
-            'No hay productos para facturar! Controlelo.',
+            'Error: Total del pago!',
+            'Revise que el total del pago debe ser igual al total de la factura.',
             'error',
           );
+        } else {
+          if (productsSellList.length > 0) {
+            if (parseInt(clienteBool) === 1) {
+              if (parseInt(tipoDoc) === 96) {
+                const largo = ndoc.length;
+                if (largo > 8 || largo < 7) {
+                  swal(
+                    'Error en el DNI!',
+                    'El DNI que trata de cargar es inválido! Reviselo.',
+                    'error',
+                  );
+                } else {
+                  facturar(data);
+                }
+              } else {
+                const esCuit = verificadorCuit(ndoc).isCuit;
+                if (esCuit) {
+                  facturar(data);
+                } else {
+                  swal(
+                    'Error en el CUIT!',
+                    'El CUIT que trata de cargar es inválido! Reviselo.',
+                    'error',
+                  );
+                }
+              }
+            } else {
+              facturar(data);
+            }
+          } else {
+            swal(
+              'Error en el carrito!',
+              'No hay productos para facturar! Controlelo.',
+              'error',
+            );
+          }
+        }
+      } else {
+        if (
+          parseInt(formaPago) === 5 &&
+          parseFloat(total) !== parseFloat(totalCustom)
+        ) {
+          swal(
+            'Error: Total del pago!',
+            'Revise que el total del pago debe ser igual al total de la factura.',
+            'error',
+          );
+        } else {
+          if (totalCustom > 0) {
+            if (parseInt(clienteBool) === 1) {
+              if (parseInt(tipoDoc) === 96) {
+                const largo = ndoc.length;
+                if (largo > 8 || largo < 7) {
+                  swal(
+                    'Error en el DNI!',
+                    'El DNI que trata de cargar es inválido! Reviselo.',
+                    'error',
+                  );
+                } else {
+                  facturar(data);
+                }
+              } else {
+                const esCuit = verificadorCuit(ndoc).isCuit;
+                if (esCuit) {
+                  facturar(data);
+                } else {
+                  swal(
+                    'Error en el CUIT!',
+                    'El CUIT que trata de cargar es inválido! Reviselo.',
+                    'error',
+                  );
+                }
+              }
+            } else {
+              facturar(data);
+            }
+          } else {
+            swal(
+              'Error en la factura!',
+              'La factura no puede ser menor o igual a cero! Controlelo.',
+              'error',
+            );
+          }
         }
       }
     }
@@ -258,6 +324,7 @@ const Ventas = ({ setValidPV }) => {
         setClienteBool(0);
         setEnvioEmailBool(0);
         setVariosPagos([]);
+        setRecargo(0);
         setRazSoc('');
         if (envioEmailBool) {
           swal(
@@ -387,97 +454,247 @@ const Ventas = ({ setValidPV }) => {
             />
 
             <br />
+            <ButtonGroup
+              className="mb-3"
+              vertical={width > 1030 ? false : true}
+            >
+              <ButtonOpenCollapse
+                action={() => setProductSell(true)}
+                tittle={'Productos'}
+                active={productSell}
+              />
+              <ButtonOpenCollapse
+                action={() => setProductSell(false)}
+                tittle={'Libre'}
+                active={!productSell}
+              />
+            </ButtonGroup>
+            {productSell ? (
+              <>
+                <ProductFinder />
 
-            <ProductFinder />
-
-            <ProdListSell />
-            <Row>
-              <Col md="6">
-                <FormasPagoMod
-                  clienteBool={clienteBool}
-                  formaPago={formaPago}
-                  variosPagos={variosPagos}
-                  setVariosPagos={setVariosPagos}
-                  factFiscBool={factFiscBool}
-                  total={total}
-                  setTotal={setTotal}
-                />
-              </Col>
-              <Col md="6">
-                {/*                 <Row style={{ marginTop: 0 }}>
-                                        <Col md="4" style={{ marginLeft: "auto", textAlign: "right" }}>
-                                            <Label style={{ fontSize: "25px", fontWeight: "bold" }} >
-                                                Subtotal:
-                                            </Label>
-                                        </Col>
-                                        <Col md="8" >
-                                            <FormGroup>
-                                                <Input style={{ fontSize: "20px", fontWeight: "bold", textAlign: "right" }} type="text" value={"$ " + formatMoney(totalPrecio)} disabled />
-                                            </FormGroup>
-                                        </Col>
-                                    </Row>
-
-                                    <Row style={{ marginTop: 0 }}>
-                                        <Col md="4" style={{ marginLeft: "auto", textAlign: "right" }}>
-                                            <Label style={{ fontSize: "25px", fontWeight: "bold" }} >
-                                                Descuento:
-                                            </Label>
-                                        </Col>
-                                        <Col md="8" >
-                                            <FormGroup>
-                                                <Row>
-                                                    <Col md="4" >
-                                                        <InputGroup>
-                                                            <Input
-                                                                style={{ fontSize: "20px", fontWeight: "bold", textAlign: "right" }}
-                                                                type="text" value={descuentoPerc}
-                                                                onChange={e => setDescuentoPer(e.target.value)}
-                                                                min={0} max={100} />
-                                                            <InputGroupAddon addonType="append">%</InputGroupAddon>
-                                                        </InputGroup>
-                                                    </Col>
-                                                    <Col md="8">
-                                                        <Input style={{ fontSize: "20px", fontWeight: "bold", textAlign: "right" }} type="text" value={"$ " + formatMoney(((descuentoPerc > 0 && descuentoPerc <= 100) ? (totalPrecio * (descuentoPerc / 100)) : 0))} disabled />
-                                                    </Col>
-                                                </Row>
-                                            </FormGroup>
-                                        </Col>
-                                    </Row>*/}
-                <Row style={{ marginTop: 0 }}>
-                  <Col
-                    md="4"
-                    style={{ marginLeft: 'auto', textAlign: 'right' }}
-                  >
-                    <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
-                      Total:
-                    </Label>
+                <ProdListSell />
+                <Row>
+                  <Col md="6">
+                    <FormasPagoMod
+                      clienteBool={clienteBool}
+                      formaPago={formaPago}
+                      variosPagos={variosPagos}
+                      setVariosPagos={setVariosPagos}
+                      factFiscBool={factFiscBool}
+                      total={total}
+                      setTotal={setTotal}
+                    />
                   </Col>
-                  <Col md="8">
+                  <Col md="6">
+                    <Row style={{ marginTop: 0 }}>
+                      <Col
+                        md="4"
+                        style={{ marginLeft: 'auto', textAlign: 'right' }}
+                      >
+                        <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
+                          Subtotal:
+                        </Label>
+                      </Col>
+                      <Col md="8">
+                        <FormGroup>
+                          <Input
+                            style={{
+                              fontSize: '20px',
+                              fontWeight: 'bold',
+                              textAlign: 'right',
+                            }}
+                            type="text"
+                            value={'$ ' + formatMoney(totalPrecio)}
+                            disabled
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+
+                    <Row style={{ marginTop: 0 }}>
+                      <Col
+                        md="4"
+                        style={{ marginLeft: 'auto', textAlign: 'right' }}
+                      >
+                        <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
+                          Descuento:
+                        </Label>
+                      </Col>
+                      <Col md="8">
+                        <FormGroup>
+                          <Row>
+                            <Col md="4">
+                              <InputGroup>
+                                <Input
+                                  style={{
+                                    fontSize: '20px',
+                                    fontWeight: 'bold',
+                                    textAlign: 'right',
+                                  }}
+                                  type="text"
+                                  value={descuentoPerc}
+                                  onChange={(e) =>
+                                    setDescuentoPer(e.target.value)
+                                  }
+                                  min={0}
+                                  max={100}
+                                />
+                                <InputGroupAddon addonType="append">
+                                  %
+                                </InputGroupAddon>
+                              </InputGroup>
+                            </Col>
+                            <Col md="8">
+                              <Input
+                                style={{
+                                  fontSize: '20px',
+                                  fontWeight: 'bold',
+                                  textAlign: 'right',
+                                }}
+                                type="text"
+                                value={
+                                  '$ ' +
+                                  formatMoney(
+                                    descuentoPerc > 0 && descuentoPerc <= 100
+                                      ? totalPrecio * (descuentoPerc / 100)
+                                      : 0,
+                                  )
+                                }
+                                disabled
+                              />
+                            </Col>
+                          </Row>
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 0 }}>
+                      <Col
+                        md="4"
+                        style={{ marginLeft: 'auto', textAlign: 'right' }}
+                      >
+                        <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
+                          Recargo:
+                        </Label>
+                      </Col>
+                      <Col md="8">
+                        <FormGroup>
+                          <Row>
+                            <Col md="12">
+                              <Input
+                                style={{
+                                  fontSize: '20px',
+                                  fontWeight: 'bold',
+                                  textAlign: 'right',
+                                }}
+                                type="text"
+                                value={recargo}
+                                onChange={(e) => setRecargo(e.target.value)}
+                              />
+                            </Col>
+                          </Row>
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 0 }}>
+                      <Col
+                        md="4"
+                        style={{ marginLeft: 'auto', textAlign: 'right' }}
+                      >
+                        <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
+                          Total:
+                        </Label>
+                      </Col>
+                      <Col md="8">
+                        <FormGroup>
+                          <Input
+                            style={{
+                              fontSize: '20px',
+                              fontWeight: 'bold',
+                              textAlign: 'right',
+                            }}
+                            type="text"
+                            value={
+                              '$ ' +
+                              formatMoney(
+                                parseFloat(descuentoPerc) > 0 &&
+                                  parseFloat(descuentoPerc) <= 100
+                                  ? totalPrecio -
+                                      totalPrecio * (descuentoPerc / 100) +
+                                      parseFloat(recargo || 0)
+                                  : totalPrecio + parseFloat(recargo || 0),
+                              )
+                            }
+                            disabled
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </>
+            ) : (
+              <>
+                <Row style={{ marginTop: '10px', marginBottom: '35px' }}>
+                  <Col md="12">
                     <FormGroup>
-                      <Input
-                        style={{
-                          fontSize: '20px',
-                          fontWeight: 'bold',
-                          textAlign: 'right',
+                      <Label for="exampleEmail">Detalle:</Label>
+                      <ReactQuill
+                        debug="info"
+                        placeholder="Describa el detalle o concepto del cobro..."
+                        theme="snow"
+                        value={detCustom}
+                        onChange={setDetCustom}
+                        modules={{
+                          toolbar: ['bold', 'italic', 'underline'],
                         }}
-                        type="text"
-                        value={
-                          '$ ' +
-                          formatMoney(
-                            parseFloat(descuentoPerc) > 0 &&
-                              parseFloat(descuentoPerc) <= 100
-                              ? totalPrecio -
-                                  totalPrecio * (descuentoPerc / 100)
-                              : totalPrecio,
-                          )
-                        }
-                        disabled
+                        style={{ height: '250px', background: '#e8eaed' }}
                       />
                     </FormGroup>
                   </Col>
                 </Row>
-              </Col>
-            </Row>
+                <Row>
+                  <Col md="6">
+                    <FormasPagoMod
+                      clienteBool={clienteBool}
+                      formaPago={formaPago}
+                      variosPagos={variosPagos}
+                      setVariosPagos={setVariosPagos}
+                      factFiscBool={factFiscBool}
+                      total={total}
+                      setTotal={setTotal}
+                    />
+                  </Col>
+                  <Col md="6">
+                    <Row style={{ marginTop: 0 }}>
+                      <Col
+                        md="4"
+                        style={{ marginLeft: 'auto', textAlign: 'right' }}
+                      >
+                        <Label style={{ fontSize: '25px', fontWeight: 'bold' }}>
+                          Total:
+                        </Label>
+                      </Col>
+                      <Col md="8">
+                        <FormGroup>
+                          <Input
+                            style={{
+                              fontSize: '20px',
+                              fontWeight: 'bold',
+                              textAlign: 'right',
+                            }}
+                            type="text"
+                            value={totalCustom}
+                            onChange={(e) => setTotalCustom(e.target.value)}
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </>
+            )}
+
             <Row style={{ marginTop: 0, textAlign: 'center' }}>
               <Col>
                 <button

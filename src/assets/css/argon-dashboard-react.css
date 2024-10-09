@@ -1318,7 +1318,8 @@ pre {
   padding: 0.625rem 0.75rem;
   font-size: 1rem;
   line-height: 1.5;
-  color: #8898aa;
+  color: #000;
+  font-weight: bold;
   background-color: #fff;
   background-clip: padding-box;
   border: 1px solid #cad1d7;
