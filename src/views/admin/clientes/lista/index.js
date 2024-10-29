@@ -26,6 +26,7 @@ const titulos = [
   'Email',
   'Cond. IVA',
   'Vendedor',
+  'Dirección',
   '',
 ];
 
@@ -68,6 +69,7 @@ const ListaClientesMod = ({
   const [idDetalle, setIdDetalle] = useState(0);
   const [userId, setUserId] = useState(0);
   const [usersList, setUsersList] = useState([]);
+  const [direccion, setDireccion] = useState("")
 
   const [esperar, setEsperar] = useState(false);
 
@@ -109,6 +111,7 @@ const ListaClientesMod = ({
       email: nvoEmail,
       cond_iva: nvoCondIva,
       user_id: userId,
+      direccion: direccion
     };
     if (update) {
       datos.id = idDetalle;
@@ -321,6 +324,7 @@ const ListaClientesMod = ({
           setNvoTelefono(body.telefono);
           setNvoEmail(body.email);
           setNvoCondIva(body.cond_iva);
+          setDireccion(body.direccion)
         } else {
           setMsgStrong('Hubo un error! ');
           setMsgGralAlert('Intente nuevamenete');
@@ -344,6 +348,7 @@ const ListaClientesMod = ({
     setNvoCondIva(0);
     setNvoEmail('');
     setNvoTelefono('');
+    setDireccion("")
   };
 
   return (
@@ -601,7 +606,27 @@ const ListaClientesMod = ({
                           />
                         </FormGroup>
                       </Col>
-                    </Row>
+                      </Row>
+                      <Row>
+                      <Col lg="12">
+                        <FormGroup>
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-username"
+                          >
+                            Dirección
+                          </label>
+                          <Input
+                            className="form-control-alternative"
+                            id="input-username"
+                            placeholder="Dirección..."
+                            type="text"
+                            value={direccion}
+                            onChange={(e) => setDireccion(e.target.value)}
+                          />
+                          </FormGroup>
+                        </Col>
+                      </Row>
                     <Row style={{ marginTop: '15px' }}>
                       <Col lg="12" style={{ textAlign: 'center' }}>
                         <FormGroup>

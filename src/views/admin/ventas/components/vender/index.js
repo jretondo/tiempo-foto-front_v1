@@ -289,7 +289,6 @@ const Ventas = ({ setValidPV }) => {
         }
       })
       .catch((err) => {
-        console.log('object :>> ', err);
         swal('Error en el código!', 'Código inválido o vencido!', 'error');
       })
       .finally(() => {
@@ -326,6 +325,8 @@ const Ventas = ({ setValidPV }) => {
         setVariosPagos([]);
         setRecargo(0);
         setRazSoc('');
+        setTotalCustom(0);
+        setDetCustom('');
         if (envioEmailBool) {
           swal(
             'Nueva Factura!',

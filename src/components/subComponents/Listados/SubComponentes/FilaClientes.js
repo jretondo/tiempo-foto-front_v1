@@ -126,6 +126,10 @@ const FilaProducto = ({
       <td style={{ textAlign: 'center' }}>
         {item.vendedor_nombre} {item.vendedor_apellido}
       </td>
+      <td style={{ textAlign: 'center' }}>
+        {item.direccion}
+      </td>     
+      
       <td className="text-right">
         <UncontrolledDropdown>
           <DropdownToggle

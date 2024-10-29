@@ -53,7 +53,6 @@ const ModalCobroCtaCte = ({ modal, toggle, clienteID, actualizar }) => {
               Authorization: 'Bearer ' + localStorage.getItem('user-token'),
               Accept: 'application/pdf',
             },
-            timeout: 5000,
           })
           .then((res) => {
             let headerLine = res.headers['content-disposition'];
