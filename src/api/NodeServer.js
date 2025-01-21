@@ -140,6 +140,7 @@ const invoicesDir = {
     notaCredPart: invoices + '/notaCredPart',
     codigoDescuento: invoices + '/codigoDescuento',
     verificaCodigo: invoices + '/verificaCodigo',
+    resetTokenAfip: invoices + '/resetTokenAfip',
   },
 };
 
